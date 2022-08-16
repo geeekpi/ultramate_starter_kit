@@ -1,0 +1,91 @@
+from machine import Pin, ADC, I2C
+from ssd1306 import SSD1306_I2C
+import framebuf
+import utime
+from time import sleep
+
+
+WIDTH  = 128                                            # oled display width
+HEIGHT = 64                                             # oled display height
+
+i2c = I2C(1, scl=Pin(15), sda=Pin(14), freq=2000000)    # Init I2C using I2C0 defaults, SCL=Pin(GP9), SDA=Pin(GP8), freq=400000
+oled = SSD1306_I2C(WIDTH, HEIGHT, i2c)                  # Init oled display
+oled.fill(0)                                            # clear screen
+
+# buffer=bytearray(b'\x00\x00\x00\x00\x01\xf0\x0f\x00\x06\x860\xb0\x04\x01@\x10\x04\x01\x000\x02\x10\x89 \x02\x05\xd2 \x01\x03\xe0@\x01\x87\xe0\x80\x10~?\x00\x00\x88\x11\x80\x01\x18\x08@\x02><@\x02a\xc3@C\xc1\x81\xe0\x05\x80\x90\x91\x08\x80\x80\x98\x08\x81\xc0\x88\t\x83\xe1\x98)\xe4\x1f\x98\x07\xf8\x0e0\x068\x0c \x02\x18\x080\x02\x88\x08 \x03\x0e0A\x01\x8f\xf8\x80\x00|\x1f\x00\x008\x0c\x00\x00\x0c0\x02\x00\x03\xe0\x00\x00\x00\x80\x00\x01\x00\x00\x04')
+buf1 = bytearray(b'\x00\x00\x00\x00\x00\x01\x80\x00\x00\x03\x83\x00\x00\x07\x81\x80\x00\x0f\x80\xc0\x00\x1f\x80@\x00?\x80 \x00\x7f\x8c0\x01\xff\x86\x10?\xff\x82\x18\x7f\xff\x83\x08\x7f\xff\x81\x8c?\xff\xb0\x84?\xff\x90\x86?\xff\x88\x82?\xff\x88\x82?\xff\x98\x82?\xff\x90\x86\x7f\xff\xa0\x84\x7f\xff\x80\x84?\xff\x81\x8c\x01\xff\x81\x08\x00\xff\x86\x18\x00\xff\x84\x10\x00\x7f\x8c0\x00\x7f\x90 \x00?\x80`\x00\x1f\x80@\x00\x0f\x80\x80\x00\x07\x81\x80\x00\x03\x83\x00\x00\x00\x00\x00'
+) # low sound level icon 32x32 pixels
+buf2 = bytearray(b'\x00\x00\x00\x00\x00\x01\x80\x00\x00\x03\x80\x00\x00\x07\x80\x00\x00\x0f\x80\x00\x00\x1f\x80\x00\x00?\x81\x00\x00\x7f\x81\x80\x01\xff\x80\xc0?\xff\x80@\x7f\xff\x80`\x7f\xff\x88 ?\xff\x8c ?\xff\x840?\xff\x86\x10?\xff\x82\x10?\xff\x82\x10?\xff\x82\x10\x7f\xff\x86\x10\x7f\xff\x84\x10?\xff\x8c\x10\x01\xff\x800\x00\xff\x80 \x00\xff\x80 \x00\x7f\x80`\x00\x7f\x80@\x00?\x81\xc0\x00\x1f\x83\x00\x00\x0f\x80\x00\x00\x07\x80\x00\x00\x03\x80\x00\x00\x00\x00\x00'
+) # high sound level icon 32x32 pixels 
+
+buf3 = bytearray(b'\x00\x00\x00\x00\x00\x03\xc0\x00\x00\x07\xe0\x00\x00\x0f\xf0\x00\x00\x1f\xf8\x00\x00\x1f\xf8\x00\x00\x1f\xf8\x00\x00?\xfc\x00\x00?\xfc\x00\x00?\xfc\x00\x00?\xfc\x00\x00?\xfc\x00\x07?\xfcp\x0f\xbf\xfc\xf8\x0f\x9f\xf8\xf8\x0f\x9f\xf9\xf8\x0f\xdf\xfb\xf0\x07\xcf\xf3\xf0\x07\xe7\xe7\xe0\x03\xf3\xcf\xe0\x03\xf8?\xc0\x01\xff\xff\x80\x01\xff\xff\x00\x00\xff\xfe\x00\x00?\xf8\x00\x00\x1f\xe0\x00\x00\x07\xc0\x00\x00\x07\xc0\x00\x00?\xfc\x00\x00\x7f\xfe\x00\x00\x7f\xfe\x00\x00\x7f\xfe\x00'
+) # microphone icon 32x32 pixels
+
+
+# fb = framebuf.FrameBuffer(buffer, 32, 32, framebuf.MONO_HLSB)
+
+fb1 = framebuf.FrameBuffer(buf1, 32, 32, framebuf.MONO_HLSB)  # define framebuffer  low sound level icon 32x32 pixels
+fb2 = framebuf.FrameBuffer(buf2, 32, 32, framebuf.MONO_HLSB)  # define framebuffer  high sound level icon 32x32 pixels
+fb3 = framebuf.FrameBuffer(buf3, 32, 32, framebuf.MONO_HLSB)  # define framebuffer microphone icon 32x32 pixels
+
+R = Pin(6, Pin.OUT)  # define Red light pin
+G = Pin(7, Pin.OUT)  # define Green light pin
+B = Pin(9, Pin.OUT)  # define Blue light pin
+
+record = Pin(3, Pin.OUT)  # define record pin to REC.
+P_L = Pin(4, Pin.OUT)     # define PlayL pin which connect to P_L
+
+oled.fill(0)    # clean screen buff
+oled.show()     # make it clean.
+
+record.value(0)      # tirgger recording mode, set record pin low and then set it high.
+utime.sleep(0.1)
+record.value(1)
+
+for i in range(5,0, -1):              # recording in 5 seconds and display it on OLED display.
+    oled.text("Recording {}s".format(i),0, 0)
+    oled.blit(fb3, 45, 20)
+    oled.show()
+    utime.sleep(1)
+    oled.fill(0)
+    oled.show()
+record.value(0)   # stop recording.
+
+def flash():    # blinking RGB light.
+    R.value(1)
+    sleep(0.01)
+    R.value(0)
+    sleep(0.01)
+    
+    G.value(1)
+    sleep(0.01)
+    G.value(0)
+    sleep(0.01)
+    
+    B.value(1)
+    sleep(0.01)
+    B.value(0)
+    sleep(0.01)
+
+def oled_play():   # play record and display speaker icon.
+    P_L.value(0)
+    sleep(0.1)
+    P_L.value(1)
+    for i in range(5):
+        oled.blit(fb1, 10, 10)
+        oled.show()
+        oled.fill(0)
+        utime.sleep(0.5)
+        oled.blit(fb2, 10, 10)
+        oled.show()
+        oled.fill(0)
+        utime.sleep(0.5)
+       
+    
+# main loop
+while True:
+    flash()
+    oled_play()
+    flash()
+  
+    
