@@ -25,19 +25,21 @@ oled = SSD1306_I2C(WIDTH, HEIGHT, bus)
 oled.fill(0) # clear screen
 oled.show()
 
+
 next_pin = Pin(9, Pin.OUT) # define next trigger pin 
 next_pin.value(1)
 
-btn = Pin(2, Pin.IN, Pin.PULL_UP) # define a key to control music player.
- 
+next_key = Pin(3, Pin.IN, Pin.PULL_UP) # next key
+
+
 while True:
     oled.text("MP3 player", 0, 0)
-    oled.text(str(pre_key.value()), 0, 10)
+    oled.text(str(next_key.value()), 0, 10)
     oled.show()
     sleep(0.5)
     oled.fill(0) # clear screen
     oled.show()
-    if pre_key.value() == 0:
+    if next_key.value() == 0:
         next_pin.value(0)
         sleep(0.1)
         next_pin.value(1)
