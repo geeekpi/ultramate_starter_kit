@@ -5,6 +5,7 @@
 
 // create the temperature, pressure, altitude variables
 float temperature, pressure, altitude;
+
 char t[100];
 char p[100];
 char a[100];
@@ -37,7 +38,7 @@ void setup() {
 	delay(2000);
 
 	// Initialise the BMP280 with default configuration
-	if (bmp280.begin(NORMAL_MODE) == 1) {
+	if (bmp280.begin(NORMAL_MODE, BMP280_I2C_ALT_ADDR) == 1) {
 		ssd1306_printFixed(0, 16, "BMP280 Initialise OK", STYLE_BOLD);
 	}
 	else {
@@ -69,20 +70,20 @@ void loop() {
 
 		// draw them on oled screen.
 		// Temperature
-		ssd1306_printFixed(0, 16, "Temperature: ", STYLE_NORMAL);
-		ssd1306_printFixed(68, 16, t, STYLE_NORMAL);
-		ssd1306_printFixed(120, 16, "C", STYLE_NORMAL);
+		ssd1306_printFixed(0, 24, "Temperature: ", STYLE_NORMAL);
+		ssd1306_printFixed(68, 24, t, STYLE_NORMAL);
+		ssd1306_printFixed(100, 24, "C", STYLE_NORMAL);
 
 		// pressure
-		ssd1306_printFixed(0, 24, "Pressure: ", STYLE_NORMAL);
-		ssd1306_printFixed(68, 24, p, STYLE_NORMAL);
-		ssd1306_printFixed(120, 16, "hPa", STYLE_NORMAL);
+		ssd1306_printFixed(0, 32, "Pressure: ", STYLE_NORMAL);
+		ssd1306_printFixed(64, 32, p, STYLE_NORMAL);
+		ssd1306_printFixed(100, 32, "hPa", STYLE_NORMAL);
 
 		// altitude
-		ssd1306_printFixed(0, 32, "Altitude: ", STYLE_NORMAL);
-		ssd1306_printFixed(68, 32, a, STYLE_NORMAL);
-		ssd1306_printFixed(120, 16, "m", STYLE_NORMAL);
+		ssd1306_printFixed(0, 40, "Altitude: ", STYLE_NORMAL);
+		ssd1306_printFixed(64, 40, a, STYLE_NORMAL);
+		ssd1306_printFixed(100, 40, "m", STYLE_NORMAL);
 	}
-	delay(500);
+	delay(20);
 }
 
