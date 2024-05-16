@@ -4,3 +4,4 @@ It is a starter kit for learning ESP32 dev board and Arduino Dev Board and Raspb
 ## SKU
 * KZ-0002
 * Product Name: Ultimate Starter Kit
+![image](https://github.com/geeekpi/ultramate_starter_kit/blob/main/KZ-0002-01.jpg)
